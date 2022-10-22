@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Text;
 using Mirai.Net.Data.Messages.Concretes;
 using Mirai.Net.Data.Messages.Receivers;
 using Mirai.Net.Sessions.Http.Managers;
@@ -13,15 +14,32 @@ public static partial class Program
     {
         if (receiver.GroupId != _config.GroupObserved.ToString())
             return;
-        var file = receiver.MessageChain.Where(t => t is FileMessage)
-            .Cast<FileMessage>().FirstOrDefault();
-        if (file is null)
-            return;
+        var url = "";
+        foreach (var message in receiver.MessageChain)
+            switch (message)
+            {
+                case FileMessage file:
+                    var fileDownloadInfo = FileManager.GetFileAsync(_config.GroupObserved.ToString(), file.FileId, true).GetAwaiter().GetResult().DownloadInfo;
+                    url = fileDownloadInfo.Url;
+                    break;
+                case ImageMessage img:
+                    url = img.Url;
+                    break;
+            }
 
-        var fileDownloadInfo = FileManager.GetFileAsync(_config.GroupObserved.ToString(), file.FileId, true).GetAwaiter().GetResult().DownloadInfo;
-        var byteArray = Image.Load(fileDownloadInfo.Url.DownloadStreamAsync().GetAwaiter().GetResult()).QrDecode()[0];
-        var url = System.Text.Encoding.Default.GetString(byteArray);
-        FillForm(url);
+        if (url is "")
+            return;
+        try
+        {
+
+            var image = Image.Load(url.DownloadStreamAsync().GetAwaiter().GetResult()).QrDecode()[0];
+            var form = Encoding.Default.GetString(image);
+            FillForm(form);
+        }
+        catch (Exception)
+        {
+            return;
+        }
     }
 
     private static void FillForm(string url)
@@ -32,7 +50,6 @@ public static partial class Program
         var elements = driver.FindElements(By.XPath("/html/body/div[1]/form/ul/child::*"));
 
         foreach (var element in elements)
-        {
             try
             {
                 var label = element.FindElement(By.XPath("./label"));
@@ -83,10 +100,10 @@ public static partial class Program
                             value = _config.Qq.ToString();
                             break;
                         default:
-                            value = new DataTable().Compute(name, "").ToString();
+                            value = new DataTable().Compute(name.TrimEnd('='), "").ToString();
                             break;
-
                     }
+
                     input.SendKeys(value);
                 }
 
@@ -95,6 +112,5 @@ public static partial class Program
             {
                 continue;
             }
-        }
     }
 }

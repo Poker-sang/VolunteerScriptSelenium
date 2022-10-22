@@ -32,7 +32,7 @@ public static partial class Program
 
             while (true)
             {
-                if (Console.ReadLine() == "exit")
+                if (Console.ReadLine() is "exit")
                     return;
             }
         }
