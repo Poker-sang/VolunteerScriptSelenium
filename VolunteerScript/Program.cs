@@ -1,5 +1,6 @@
 ﻿using System.Reactive.Linq;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Mirai.Net.Data.Messages.Receivers;
 using Mirai.Net.Sessions;
 
@@ -8,6 +9,7 @@ namespace VolunteerScript;
 public static partial class Program
 {
     private static Config _config = null!;
+    private const bool Bot = false;
 
     public static async Task Main()
     {
@@ -16,20 +18,42 @@ public static partial class Program
             _config = GetConfig();
 
             _ = EdgeDriverManager.GetEdgeDriver();
-
-            using var bot = new MiraiBot
+            if (Bot)
             {
-                Address = $"{_config.IpAddress}:{_config.Port}",
-                QQ = _config.QqBot.ToString(),
-                VerifyKey = _config.VerifyKey
-            };
+                using var bot = new MiraiBot
+                {
+                    Address = $"{_config.IpAddress}:{_config.Port}",
+                    QQ = _config.QqBot.ToString(),
+                    VerifyKey = _config.VerifyKey
+                };
 
-            await bot.LaunchAsync();
+                await bot.LaunchAsync();
 
-            _ = bot.MessageReceived
-                .OfType<GroupMessageReceiver>()
-                .Subscribe(OnGroupMessage);
-
+                _ = bot.MessageReceived
+                    .OfType<GroupMessageReceiver>()
+                    .Subscribe(OnGroupMessage);
+            }
+            else
+            {
+                var fileSystemWatcher = new FileSystemWatcher($@"C:\Softwares\Tencent\{_config.QqBot}\FileRecv")
+                {
+                    EnableRaisingEvents = true
+                };
+                fileSystemWatcher.Created += (o, e) =>
+                {
+                    if (Regex.IsMatch(e.FullPath, @"[\\\w]+\.(webp|png|jpeg|jpg|bmp)$", RegexOptions.Compiled))
+                        while (true)
+                            try
+                            {
+                                Utility(e.FullPath);
+                                break;
+                            }
+                            catch (IOException)
+                            {
+                                _ = Task.Delay(100);
+                            }
+                };
+            }
             while (true)
             {
                 if (Console.ReadLine() is "exit")
@@ -41,6 +65,7 @@ public static partial class Program
             EdgeDriverManager.Quit();
         }
     }
+
 
     private static Config GetConfig()
     {
