@@ -1,7 +1,7 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Edge;
 
-namespace VolunteerScript;
+namespace VolunteerScript.Utilities;
 
 public static class EdgeDriverManager
 {
@@ -41,7 +41,10 @@ public static class EdgeDriverManager
 
     public static void Quit()
     {
+        if (EdgeDriver == null!)
+            return;
         EdgeDriver.Quit();
+        EdgeDriver.Dispose();
         EdgeDriver = null!;
         GC.Collect();
     }

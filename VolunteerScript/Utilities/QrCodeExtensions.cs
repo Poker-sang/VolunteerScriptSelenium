@@ -2,7 +2,7 @@
 using QRCodeDecoderLibrary;
 using SixLabors.ImageSharp;
 
-namespace VolunteerScript;
+namespace VolunteerScript.Utilities;
 
 public static class QrCodeExtensions
 {

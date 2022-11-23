@@ -1,9 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Net;
-using System.Net.Http.Headers;
 using System.Text.Json;
 
-namespace VolunteerScript;
+namespace VolunteerScript.Utilities;
 
 internal static class HttpClientExtensions
 {
@@ -38,9 +37,7 @@ internal static class HttpClientExtensions
 
         Debug.WriteLine($"[{nameof(HttpClientExtensions)}]::{nameof(InitializeHeader)}(): Header: [");
         foreach (var i in client.DefaultRequestHeaders)
-        {
             Debug.WriteLine($"  {i.Key}:{string.Join(';', i.Value)},");
-        }
 
         Debug.WriteLine($"]");
         return client;
