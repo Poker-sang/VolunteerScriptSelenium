@@ -25,7 +25,7 @@ public static partial class Program
         Local
     }
 
-    private static readonly Mode _bot = Mode.MiraiCSharp;
+    private static readonly Mode _bot = Mode.MiraiNet;
 
     public static async Task Main()
     {

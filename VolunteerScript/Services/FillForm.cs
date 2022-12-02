@@ -50,20 +50,19 @@ public static class FillForm
                 var name = label.Text.TrimStart('*');
 
                 if (name.Contains("时间"))
-                {
-                    foreach (var span in element.FindElements(By.XPath("./div/span")))
+                    foreach (var span in element.FindElements(By.TagName("span")))
                     {
-                        var input = span.FindElement(By.XPath("./input"));
+                        var input = span.FindElement(By.TagName("input"));
                         if (!input.Enabled)
                             continue;
-                        var ratio = span.FindElement(By.XPath("./label"));
+                        var ratio = span.FindElement(By.TagName("label"));
                         ratio.Click();
                         break;
                     }
-                }
                 else
                 {
-                    var input = element.FindElement(By.XPath("./div/input"));
+                    var input = element.FindElement(By.TagName("input"));
+                    var hint = element.GetAttribute("reqdtxt");
                     var value = name switch
                     {
                         "姓名" => config.Name,
@@ -76,9 +75,13 @@ public static class FillForm
                         "电话" => config.Tel.ToString(),
                         "联系方式" => config.Tel.ToString(),
                         "QQ" => config.Qq.ToString(),
-                        _ => name.Contains("专业班级")
-                            ? config.Major + config.Class
-                            : new DataTable().Compute(name.TrimEnd('='), "").ToString()
+                        _ => 0 switch
+                        {
+                            0 when !string.IsNullOrEmpty(hint) => hint,
+                            0 when name.Contains("专业班级") => config.Major + config.Class,
+                            0 when name.Contains("输入图片中的文字") => "中",
+                            _ => new DataTable().Compute(name.TrimEnd('='), "").ToString()
+                        }
                     };
 
                     input.SendKeys(value);

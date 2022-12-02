@@ -19,7 +19,7 @@ public static class EdgeDriverManager
 
         options.AddArguments(
             // "--headless",
-            "blink-settings=imagesEnabled=false",
+            // "blink-settings=imagesEnabled=false",
             "--disable-blink-features=AutomationControlled");
         return EdgeDriver = new(EdgeDriverService.CreateDefaultService(), options, new(0, timeout, 0));
 

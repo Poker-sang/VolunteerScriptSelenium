@@ -11,6 +11,6 @@ public class GroupMessage : IMiraiHttpMessageHandler<IGroupMessageEventArgs>
 {
     public async Task HandleMessageAsync(IMiraiHttpSession session, IGroupMessageEventArgs e) // 法1: 使用 IMessageBase[]
     {
-        Program
+
     }
 }
